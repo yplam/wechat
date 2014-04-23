@@ -1,0 +1,88 @@
+<?php
+
+function wechat_install(){
+  if(!menu_load('wechat')){
+    menu_save(array(
+    'menu_name'=>'wechat',
+    'title'=>'WeChat Menu',
+    'description'=>'WeChat Custom menu',
+    ));
+  }
+}
+
+
+function wechat_uninstall(){
+  variable_del("wechat_config_token");
+  variable_del("wechat_config_appid");
+  variable_del("wechat_config_appsecret");
+  variable_del("wechat_default_message");
+  variable_del("wechat_follow_message");
+}
+
+
+function wechat_schema(){
+  $schema['wechat_user'] = array(
+    'description' => 'wechat message.',
+    'fields' => array(
+  		'uid' => array(
+  			'description' => 'userid.',
+  			'type' => 'int',
+  			'unsigned' => TRUE,
+  			'not null' => TRUE,
+  		),
+  		'openid' => array(
+  			'description' => 'openid',
+  			'type' => 'varchar',
+  			'length' => 255,
+  			'not null' => TRUE,
+  		),
+  		 'nickname' => array(
+  			'description' => 'nickname',
+  			'type' => 'varchar',
+  			'length' => 255,
+  			'not null' => TRUE,
+  			'default' => '',
+  		),
+  		 'sex' => array(
+  			'description' => 'sex',
+  			'type' => 'int',
+  			'unsigned' => TRUE,
+  			'not null' => TRUE,
+  			'default' => 0,
+  		),
+  		'province' => array(
+  			'description' => 'province',
+  			'type' => 'varchar',
+  			'length' => 255,
+  			'not null' => TRUE,
+  			'default' => '',
+  		),
+  		'city' => array(
+  			'description' => 'city',
+  			'type' => 'varchar',
+  			'length' => 255,
+  			'not null' => TRUE,
+  			'default' => '',
+  		),
+  		'country' => array(
+  			'description' => 'country',
+  			'type' => 'varchar',
+  			'length' => 255,
+  			'not null' => TRUE,
+  			'default' => '',
+  		),
+  		'headimgurl' => array(
+  			'description' => 'headimgurl',
+  			'type' => 'varchar',
+  			'length' => 255,
+  			'not null' => TRUE,
+  			'default' => '',
+  		),
+  	),
+  	'unique keys' => array(
+  	  'openid' => array('openid'),
+  	  'uid' => array('uid'),
+  	),
+  );
+  return $schema;
+}

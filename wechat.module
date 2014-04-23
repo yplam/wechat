@@ -1,0 +1,252 @@
+<?php
+
+/**
+ * hook menu
+ */
+function wechat_menu(){
+  $items = array();
+  $items['admin/config/wechat'] = array(
+    'title' => 'Config Wechat',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wechat_admin_settings'),
+    'access arguments' => array('admin wechat'),
+    'type' => MENU_NORMAL_ITEM,
+  	'file' => 'wechat.admin.inc',
+  	'position' => 'left',
+  );
+  $items['admin/config/wechat/config'] = array(
+    'title' => 'Config Wechat',
+  	'type' => MENU_DEFAULT_LOCAL_TASK,
+  	'weight' => -1,
+  );
+  /* login with wechat */
+  $items['wechat/auth'] = array(
+    'title' => 'Wechat Auth',
+    'page callback' => 'wechat_auth',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+	  'file' => 'wechat.pages.inc',
+  );
+  $items['wechat'] = array(
+    'title' => 'Wechat',
+    'page callback' => 'wechat_main_page',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    'file' => 'wechat.pages.inc',
+  );
+  return $items;
+}
+
+/**
+ * hook_permission
+ */
+function wechat_permission(){
+  return array(
+    'admin wechat' => array('title'=>t('Administretor WeChat')),
+  );
+}
+
+/**
+ * hook menu form
+ */
+function wechat_form_menu_edit_item_alter(&$form, $form_state) {
+  $item = $form['original_item']['#value'];
+  _wechat_menu_form_alter($form, $item, $form);
+}
+
+/**
+ * Add the menu attributes to a menu item edit form.
+ *
+ * @param $form
+ *   The menu item edit form passed by reference.
+ * @param $item
+ *   The optional existing menu item for context.
+ */
+function _wechat_menu_form_alter(array &$form, array $item = array(), array &$complete_form) {
+  // Restrict access to the new form elements.
+  if($item['menu_name'] !== 'wechat'){
+	  return;
+  }
+  $form['options']['#tree'] = TRUE;
+  $form['options']['#weight'] = 50;
+
+  // Unset the previous value so that the new values get saved.
+  unset($form['options']['#value']['attributes']);
+
+  $form['options']['attributes'] = array(
+    '#type' => 'fieldset',
+    '#title' => 'WeChat Menu Config',
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+    '#tree' => TRUE,
+  );
+
+  $form['options']['attributes']['wechat_type'] = array(
+    '#type' => 'radios',
+    '#title' => t('Menu Type'),
+    '#default_value' => isset($item['options']['attributes']['wechat_type']) ? $item['options']['attributes']['wechat_type'] : 'click',
+    '#options' => array('click'=>t('Click'), 'view'=>t('View')),
+    '#description' => t('Click: send click event to server, View: open menu url.'),
+	  '#required' => true,
+  );
+  $form['options']['attributes']['wechat_key'] = array(
+	  '#type' => 'textfield',
+    '#title' => t('Menu KEY'),
+    '#description' => t('Key for the menu clicked event'),
+    '#default_value' => isset($item['options']['attributes']['wechat_key']) ? $item['options']['attributes']['wechat_key'] : '',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="options[attributes][wechat_type]"]' => array('value' => 'click'),
+      ),
+    ),
+  );
+  $form['options']['attributes']['wechat_default_message'] = array(
+	  '#type' => 'textarea',
+    '#title' => t('Menu Default Message'),
+    '#description' => t('Send this message on menu clicked if no other module take action'),
+    '#default_value' => isset($item['options']['attributes']['wechat_default_message']) ? $item['options']['attributes']['wechat_default_message'] : '',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="options[attributes][wechat_type]"]' => array('value' => 'click'),
+      ),
+    ),
+  );
+  $form['options']['attributes']['wechat_url'] = array(
+	  '#type' => 'textfield',
+    '#title' => t('Menu Open URL'),
+    '#description' => t('Open this URL if menu type is view.'),
+    '#default_value' => isset($item['options']['attributes']['wechat_url']) ? $item['options']['attributes']['wechat_url'] : '',
+	  '#states' => array(
+      'visible' => array(
+        ':input[name="options[attributes][wechat_type]"]' => array('value' => 'view'),
+      ),
+    ),
+  );
+  array_unshift($form['#submit'], '_wechat_menu_form_submit');
+  $form['#validate'][] = '_wechat_menu_form_validate';
+}
+
+function _wechat_menu_form_validate($form, &$form_state) {
+	if($form_state['values']['options']['attributes']['wechat_type'] == 'click'){
+		if(empty($form_state['values']['options']['attributes']['wechat_key'])){
+			form_set_error('wechat_key', t('Menu KEY is required'));
+		}
+	}
+	else{
+		if(!valid_url($form_state['values']['options']['attributes']['wechat_url'], true)){
+			form_set_error('wechat_url', t('Please enter a url.'));
+		}
+	}
+}
+
+function _wechat_menu_form_submit($form, &$form_state) {
+
+}
+
+/**
+ * init wechat object
+ */
+function _wechat_init_obj(){
+  $weObj = &drupal_static(__FUNCTION__);
+  if(!isset($weObj)){
+    module_load_include('php', 'wechat', 'wechat.class');
+    $options = array(
+      'token' => variable_get('wechat_config_token', ""),
+      'appid' => variable_get('wechat_config_appid', ""),
+      'appsecret' => variable_get('wechat_config_appsecret', ""),
+    );
+    $weObj = new Wechat($options);
+  }
+  return $weObj;
+}
+
+/**
+ * user login by uid
+ */
+function _wechat_user_login($uid){
+  global $user;
+  $user = user_load($uid);
+  drupal_session_regenerate();
+}
+
+/**
+ * hook_user_load
+ */
+function wechat_user_load($users) {
+  $result = db_query('SELECT * FROM {wechat_user} WHERE uid IN (:uids)', array(':uids' => array_keys($users)));
+  foreach ($result as $record) {
+    $users[$record->uid]->wechat = $record;
+  }
+}
+
+/**
+ * load user by wechat openid
+ */
+function wechat_token_get_user($openid){
+  $result = db_query("SELECT * FROM {wechat_user} WHERE openid=:openid", array(':openid'=>$openid));
+  if(!$result){
+    return false;
+  }
+  $authmap = $result->fetchAssoc();
+  if(!empty($authmap['uid'])){
+	  return user_load($authmap['uid']);
+  }
+  return false;
+}
+
+function _wechat_get_access_token(){
+  $access_token = variable_get('wechat_access_token');
+  $token_expires = variable_get('wechat_token_expires', 0);
+  if($access_token && time() < $token_expires){
+    return $access_token['value'];
+  }
+  $weObj = _wechat_init_obj();
+  $access_token = $weObj->checkAuth();
+  if($access_token){
+    variable_set('wechat_access_token', $access_token);
+    variable_set('wechat_token_expires', time()+1200);
+  }
+  return $access_token;
+}
+
+/**
+ * Login user and get user openid
+ */
+function wechat_snsapi_base($path, $onerror=''){
+  $weObj = _wechat_init_obj();
+	$auth_url = $weObj->getOauthRedirect(url('wechat/auth', array('absolute'=>TRUE, 'query'=>array('destination'=>$path, 'onerror'=>$onerror))), 1, 'snsapi_base');
+	drupal_goto($auth_url);
+}
+
+function wechat_snsapi_userinfo($path, $onerror){
+  $weObj = _wechat_init_obj();
+	$auth_url = $weObj->getOauthRedirect(url('wechat/auth', array('absolute'=>TRUE, 'query'=>array('destination'=>$path, 'onerror'=>$onerror))), 2, 'snsapi_userinfo');
+	drupal_goto($auth_url);
+}
+
+/**
+ * connect user with wechat openid
+ */
+function wechat_connect_user($uid, $openid){
+  db_query('delete FROM {wechat_user} WHERE uid=:uid OR openid=:openid', array(':uid'=>$uid, ':openid'=>$openid));
+  $weObj = _wechat_init_obj();
+  $user_info = $weObj->getUserInfo($openid);
+  if($user_info){
+    $wechat_user = array(
+      'uid' => $uid,
+      'openid' => $user_info['openid'],
+      'nickname' => $user_info['nickname'],
+      'sex' => $user_info['sex'],
+      'province' => $user_info['province'],
+      'city' => $user_info['city'],
+      'country' => $user_info['country'],
+      'headimgurl' => $user_info['headimgurl'],
+      'extend' => array(),
+    );
+    if(drupal_write_record('wechat_user', $wechat_user)){
+      return true;
+    }
+  }
+  return false;
+}
+

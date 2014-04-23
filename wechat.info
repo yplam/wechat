@@ -1,0 +1,6 @@
+name = Wechat
+description = Connect Drupal with Wechat.
+core = 7.x
+
+dependencies[] = menu
+configure = admin/config/wechat/config
