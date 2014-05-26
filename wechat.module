@@ -122,7 +122,6 @@ function _wechat_menu_form_alter(array &$form, array $item = array(), array &$co
       ),
     ),
   );
-  array_unshift($form['#submit'], '_wechat_menu_form_submit');
   $form['#validate'][] = '_wechat_menu_form_validate';
 }
 
@@ -197,8 +196,8 @@ function wechat_token_get_user($openid){
  */
 function wechat_snsapi_base($path, $onerror=''){
   $weObj = _wechat_init_obj();
-	$auth_url = $weObj->getOauthRedirect(url('wechat/auth', array('absolute'=>TRUE, 'query'=>array('destination'=>$path, 'onerror'=>$onerror))), 1, 'snsapi_base');
-	drupal_goto($auth_url);
+  $auth_url = $weObj->getOauthRedirect(url('wechat/auth', array('absolute'=>TRUE, 'query'=>array('destination'=>$path, 'onerror'=>$onerror))), 1, 'snsapi_base');
+  drupal_goto($auth_url);
 }
 
 function wechat_snsapi_userinfo($path, $onerror){

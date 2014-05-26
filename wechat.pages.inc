@@ -62,6 +62,7 @@ function wechat_auth(){
   // check if already connectted
   if($curuser = wechat_token_get_user($accessData['openid'])){
     _wechat_user_login($curuser->uid);
+	// todo update user info
     drupal_goto($destination);
   }
   
@@ -85,7 +86,7 @@ function wechat_auth(){
   _wechat_user_login($account->uid);
   $wechat_user = array(
   	'uid' => $user->uid,
-  	'openid' => $user_info['openid'],
+  	'openid' => $accessData['openid'],
     'extend' => array(),
   );
   // also save user wechat information.
