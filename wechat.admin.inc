@@ -1,6 +1,8 @@
 <?php
 
-
+/**
+ * wechat setting form
+ */
 function wechat_admin_settings(){
   $form['config'] = array(
     '#type' => 'fieldset',
@@ -74,6 +76,9 @@ function wechat_admin_settings(){
   return $form;
 }
 
+/**
+ * save wechat setting config
+ */
 function wechat_admin_config_submit($form, &$form_state){
   variable_set('wechat_config_token', $form_state['values']['config_token']);
   variable_set('wechat_config_appid', $form_state['values']['config_appid']);
@@ -81,12 +86,18 @@ function wechat_admin_config_submit($form, &$form_state){
 
 }
 
+/**
+ * save config
+ */
 function wechat_admin_default_message_submit($form, &$form_state){
   variable_set('wechat_default_message', $form_state['values']['default_message']);
   variable_set('wechat_follow_message', $form_state['values']['follow_message']);
 }
 
 
+/**
+ * Drupal menu to wechat menu
+ */
 function _wechat_menu_item($subval){
   $subelement = array();
   $subelement['name'] = $subval['link']['link_title'];
@@ -103,6 +114,9 @@ function _wechat_menu_item($subval){
 }
 
 
+/**
+ * drupal menu to wechat menu array
+ */
 function _wechat_menu_arr(){
   $menu_tree = menu_build_tree('wechat', array('max_depth'=>2));
   $menu_arr = array();
@@ -132,6 +146,9 @@ function _wechat_menu_arr(){
 }
 
 
+/**
+ * update wechat menu
+ */
 function wechat_admin_update_menu_submit($form, &$form_state){
   $menu_arr = _wechat_menu_arr();
   if(empty($menu_arr['button'])){

@@ -139,9 +139,6 @@ function _wechat_menu_form_validate($form, &$form_state) {
 	}
 }
 
-function _wechat_menu_form_submit($form, &$form_state) {
-
-}
 
 /**
  * init wechat object
@@ -194,20 +191,6 @@ function wechat_token_get_user($openid){
   return false;
 }
 
-function _wechat_get_access_token(){
-  $access_token = variable_get('wechat_access_token');
-  $token_expires = variable_get('wechat_token_expires', 0);
-  if($access_token && time() < $token_expires){
-    return $access_token['value'];
-  }
-  $weObj = _wechat_init_obj();
-  $access_token = $weObj->checkAuth();
-  if($access_token){
-    variable_set('wechat_access_token', $access_token);
-    variable_set('wechat_token_expires', time()+1200);
-  }
-  return $access_token;
-}
 
 /**
  * Login user and get user openid

@@ -34,6 +34,10 @@ function wechat_main_page(){
   exit;
 }
 
+/**
+ * ****** unstable *****
+ * login user
+ */
 function wechat_auth(){
   global $user;
   $weObj = _wechat_init_obj();
@@ -41,9 +45,12 @@ function wechat_auth(){
   $onerror = isset($_GET['onerror']) ? $_GET['onerror'] : '';
   $destination = isset($_GET['destination']) ? $_GET['destination'] : '';
   $code = isset($_GET['code']) ? $_GET['code'] : '';
+  // user has logined
   if($user->uid){
     drupal_goto($destination);
   }
+  
+  // error
   if((!$state) || (!$code)){ // error
     drupal_goto($onerror);
   }
@@ -57,6 +64,8 @@ function wechat_auth(){
     _wechat_user_login($curuser->uid);
     drupal_goto($destination);
   }
+  
+  // auto register
   $user_name = 'wechat_'.substr($accessData['openid'], 0, 15);
   while(user_load_by_name($user_name)){
     $user_name = $user_name.rand(0, 100);
@@ -79,6 +88,7 @@ function wechat_auth(){
   	'openid' => $user_info['openid'],
     'extend' => array(),
   );
+  // also save user wechat information.
   if($state == 2){
   	$user_info = $weObj->getOauthUserinfo($accessData['access_token'], $accessData['openid']);
   	if(!empty($user_info)){
@@ -98,7 +108,9 @@ function wechat_auth(){
   drupal_goto($destination);
 }
 
-
+/**
+ * find the default message
+ */
 function _wechat_menu_default_message($event){
   // get all click menu key
   $key = isset($event['key']) ? $event['key'] : '';
