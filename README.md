@@ -30,4 +30,4 @@ Drupal微信（公众平台）接口，提供以下功能
 
 详情与测试方式
 
-http://yplam.com/drupal%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%B9%B3%E5%8F%B0%E6%A8%A1%E5%9D%97/
+http://yplam.com/content/drupal%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%B9%B3%E5%8F%B0%E6%A8%A1%E5%9D%97
