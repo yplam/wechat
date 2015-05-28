@@ -3,64 +3,53 @@
 /**
  * wechat setting form
  */
-function wechat_admin_settings(){
+function wechat_admin_settings($form, &$form_state) {
   $form['config'] = array(
     '#type' => 'fieldset',
     '#title' => t('WeChat Config'),
 	  '#collapsible' => TRUE,
 	  '#collapsed' => FALSE,
   );
-  $form['config']['config_token'] = array(
+  $form['config']['wechat_config_token'] = array(
     '#type' => 'textfield',
     '#title' => t('WeChat Token'),
     '#description' => t('WeChat Account Token'),
     '#default_value' => variable_get('wechat_config_token', ""),
     '#required' => true,
   );
-  $form['config']['config_appid'] = array(
+  $form['config']['wechat_config_appid'] = array(
     '#type' => 'textfield',
     '#title' => t('AppID'),
     '#description' => t('Account APPID'),
     '#default_value' => variable_get('wechat_config_appid', ""),
     '#required' => true,
   );
-  $form['config']['config_appsecret'] = array(
+  $form['config']['wechat_config_appsecret'] = array(
     '#type' => 'textfield',
     '#title' => t('AppSecret'),
     '#description' => t('Account AppSecret'),
     '#default_value' => variable_get('wechat_config_appsecret', ""),
     '#required' => true,
   );
-  $form['config']['submit_config'] = array(
-    '#type' => 'submit',
-    '#value' => t('save'),
-    '#submit' => array('wechat_admin_config_submit'),
-  );
-
   $form['default_message'] = array(
     '#type' => 'fieldset',
     '#title' => t('Auto reply'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
-  $form['default_message']['default_message'] = array(
+  $form['default_message']['wechat_default_message'] = array(
     '#type' => 'textarea',
     '#title' => t('Auto reply message'),
     '#description' => t('The WeChat module will send this message to user if no other Modules '),
     '#default_value' => variable_get('wechat_default_message', "hello, I'm wechat"),
     '#required' => true,
   );
-  $form['default_message']['follow_message'] = array(
+  $form['default_message']['wechat_follow_message'] = array(
     '#type' => 'textarea',
     '#title' => t('Auto reply message after follow.'),
     '#description' => '',
     '#default_value' => variable_get('wechat_follow_message', "hello, I'm wechat"),
     '#required' => false,
-  );
-  $form['default_message']['submit_message'] = array(
-    '#type' => 'submit',
-    '#value' => t('Save Message'),
-    '#submit' => array('wechat_admin_default_message_submit'),
   );
   $form['update_menu'] = array(
     '#type' => 'fieldset',
@@ -73,27 +62,8 @@ function wechat_admin_settings(){
     '#value' => t('Update Menu'),
     '#submit' => array('wechat_admin_update_menu_submit'),
   );
-  return $form;
+  return system_settings_form($form);
 }
-
-/**
- * save wechat setting config
- */
-function wechat_admin_config_submit($form, &$form_state){
-  variable_set('wechat_config_token', $form_state['values']['config_token']);
-  variable_set('wechat_config_appid', $form_state['values']['config_appid']);
-  variable_set('wechat_config_appsecret', $form_state['values']['config_appsecret']);
-
-}
-
-/**
- * save config
- */
-function wechat_admin_default_message_submit($form, &$form_state){
-  variable_set('wechat_default_message', $form_state['values']['default_message']);
-  variable_set('wechat_follow_message', $form_state['values']['follow_message']);
-}
-
 
 /**
  * Drupal menu to wechat menu
