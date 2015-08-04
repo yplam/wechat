@@ -1,6 +1,12 @@
 wechat
 ======
 
+**注意：**
+
+此模块已经整合到 https://www.drupal.org/project/wechat ，请使用该项目，此处代码不再更新。
+
+
+
 分享自己写的一个Drupal微信模块，可以用来实现简单的微信管理后台，同时提供hook方便进行定制开发。
 
 有任何问题欢迎交流 yplam#yplam.com
