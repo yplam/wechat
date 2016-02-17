@@ -1,0 +1,5 @@
+name: Wechat
+type: module
+description: Drupal wechat module
+core: 8.x
+package: Wechat

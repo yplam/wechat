@@ -1,0 +1,16 @@
+{
+  "name": "drupal/wechat",
+  "type": "drupal-module",
+  "description": "Drupal wechat module",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/wechat",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "http://drupal.org/project/issues/wechat",
+    "source": "http://cgit.drupalcode.org/wechat"
+  },
+  "require": { 
+    "yplam/wechat-sdk": "dev-master"
+  }
+}

@@ -1,0 +1,13 @@
+services: 
+  wechat.cache_adapter:
+    class: Drupal\wechat\WechatCacheAdapterService
+    arguments: ["@cache.default"]
+       
+  wechat.default:
+    class: YPL\WechatSDK\Wechat
+    arguments: ["@http_client", { 'appid': '%wechat.appid%', 'appsecret': '%wechat.appsecret%', 'token': '%wechat.token%' }]
+    calls:
+      - [setStorage, ["@wechat.cache_adapter"]]
+
+
+
